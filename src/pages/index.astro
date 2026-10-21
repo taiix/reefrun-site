@@ -46,13 +46,18 @@ const badges = [
 
     <div class="flex h-full flex-col items-center justify-end px-5 pb-[clamp(3.5rem,11vh,7rem)]">
       <h1 class="w-full">
-        <img
-          src="/media/logo_1800.png"
-          alt="Reef Run"
-          width="1800"
-          height="603"
-          class="logo mx-auto w-[min(92vw,820px)]"
-        />
+        <!-- The baked logo shows until the live waterline (src/scripts/waterLogo.ts) is ready. -->
+        <span class="logo relative mx-auto block aspect-[1799/603] w-[min(92vw,820px)]">
+          <img
+            data-logo-still
+            src="/media/logo_1800.png"
+            alt="Reef Run"
+            width="1800"
+            height="603"
+            class="absolute inset-0 h-full w-full transition-opacity duration-300"
+          />
+          <canvas data-logo-water aria-hidden="true" class="absolute inset-0 h-full w-full opacity-0"></canvas>
+        </span>
       </h1>
       <div class="badges mt-[clamp(1rem,3.5vh,2rem)] flex flex-wrap justify-center gap-3">
         {badges.map((b) => (
@@ -81,6 +86,15 @@ const badges = [
 </SiteLayout>
 
 <script>
+  import { startWaterLogo } from "../scripts/waterLogo";
+
+  // The logo's waterline ripples; with reduced motion it is drawn once, still.
+  const still = document.querySelector<HTMLElement>("[data-logo-still]");
+  const water = document.querySelector<HTMLCanvasElement>("canvas[data-logo-water]");
+  if (still && water) {
+    startWaterLogo(water, still, !window.matchMedia("(prefers-reduced-motion: reduce)").matches).catch(() => {});
+  }
+
   // Reduced motion keeps the still.
   //
   // The loop is rendered at 4K and encoded three ways; each browser gets the best codec it decodes:
